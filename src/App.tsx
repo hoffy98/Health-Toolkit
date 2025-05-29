@@ -1,9 +1,9 @@
 function App() {
   return (
-    <>
-      <h1 className="font-mono">Hello, World</h1>
-    </>
-  );
+    <div className="w-svw h-svh flex justify-center items-center">
+      <h1>Health Toolkit</h1>
+    </div>
+  )
 }
 
-export default App;
+export default App

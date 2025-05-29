@@ -1,1 +1,18 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@theme {
+  --color-accent: #ffa500;
+  --color-primary_dark: #171717;
+  --color-primary_light: #f5f5f5;
+}
+
+@layer base {
+  * {
+    @apply font-mono;
+    @apply bg-primary_dark;
+    @apply text-primary_light;
+  }
+  h1 {
+    @apply text-2xl;
+  }
+}
