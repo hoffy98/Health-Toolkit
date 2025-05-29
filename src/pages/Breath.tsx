@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import './Breath.css'
+import React, { useEffect, useRef, useState } from 'react'
+
+import { motion, useAnimation } from 'framer-motion'
 
 import Modal from '@/components/Modal'
 import RangeSlider from '@/components/RangeSlider'
@@ -8,14 +9,30 @@ interface BreathProps {}
 
 const Breath: React.FC<BreathProps> = ({}) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false)
+  const [restartTrigger, setRestartTrigger] = useState<boolean>(false)
   const [durations, setDurations] = useState<[number, number, number, number]>([
     4000, 1000, 4000, 1000,
   ])
 
+  const onAnimationStart = () => {
+    console.log('Animation Start')
+  }
+
+  const triggerAnimationRestart = () => {
+    setRestartTrigger((old) => !old)
+  }
+
   return (
     <div className="flex flex-col w-full h-full items-center">
-      <div className="flex w-full h-full items-center justify-center">
-        <BreathingCircle durations={durations} />
+      <div
+        onClick={triggerAnimationRestart}
+        className="flex w-full h-full items-center justify-center"
+      >
+        <BreathingCircle
+          onAnimationStart={onAnimationStart}
+          durationsMs={durations}
+          restartTrigger={restartTrigger}
+        />
       </div>
       <button onClick={() => setIsSettingsOpen(true)}>Settings</button>
       {/* Settings Modal */}
@@ -112,59 +129,66 @@ const BreathTimeSlider: React.FC<BreathTimeSliderProps> = ({
 }
 
 interface BreathingCircleProps {
-  durations: [number, number, number, number] // [breatheIn, hold1, breatheOut, hold2] in ms
+  durationsMs: [number, number, number, number] // [breatheIn, hold1, breatheOut, hold2]
+  onAnimationStart: () => void
+  restartTrigger: boolean
 }
 
-const BreathingCircle: React.FC<BreathingCircleProps> = ({ durations }) => {
-  const [phaseIndex, setPhaseIndex] = useState(0)
-
-  const phases = [
-    {
-      name: 'Breathe In',
-      color: 'bg-green-400',
-      animation: 'breathing-in',
-      animationShadow: 'breathing-in-shadow',
-    },
-    {
-      name: 'Hold',
-      color: 'bg-green-400',
-      animation: 'hold-in',
-      animationShadow: 'hold-in-shadow',
-    },
-    {
-      name: 'Breathe Out',
-      color: 'bg-green-400',
-      animation: 'breathing-out',
-      animationShadow: 'breathing-out-shadow',
-    },
-    {
-      name: 'Hold',
-      color: 'bg-green-400',
-      animation: 'hold-out',
-      animationShadow: 'hold-out-shadow',
-    },
-  ]
+const BreathingCircle: React.FC<BreathingCircleProps> = ({
+  durationsMs,
+  onAnimationStart,
+  restartTrigger,
+}) => {
+  const durations = durationsMs.map((d) => d / 1000)
+  const totalDuration = durations.reduce((a, b) => a + b)
+  const controls = useAnimation()
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setPhaseIndex((prev) => (prev + 1) % phases.length)
-    }, durations[phaseIndex])
+    // Cancel any previous intervals immediately
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
 
-    return () => clearTimeout(timeout)
-  }, [phaseIndex, durations])
+    // Fire immediately
+    onAnimationStart?.()
+
+    // Start interval for repeated callbacks
+    intervalRef.current = setInterval(() => {
+      onAnimationStart?.()
+    }, totalDuration * 1000)
+
+    // Start the animation
+    controls.set({ width: '0%' }) // Reset to initial state
+    controls.start({
+      width: ['0%', '100%', '100%', '0%', '0%'],
+      transition: {
+        repeat: Infinity,
+        duration: totalDuration,
+        ease: ['easeOut', 'linear', 'easeOut', 'linear'],
+        times: [
+          0,
+          durations[0] / totalDuration,
+          (durations[0] + durations[1]) / totalDuration,
+          (durations[0] + durations[1] + durations[2]) / totalDuration,
+          1,
+        ],
+      },
+    })
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [durationsMs.join(','), restartTrigger]) // Trigger only when values change
 
   return (
-    <>
-      <div
-        className={`flex items-center border rounded-full justify-center w-1/2 aspect-square ${phases[phaseIndex].animationShadow}`}
-        style={{ animationDuration: `${durations[phaseIndex]}ms` }}
-      >
-        <div
-          className={`aspect-square rounded-full ${phases[phaseIndex].color} ${phases[phaseIndex].animation}`}
-          style={{ animationDuration: `${durations[phaseIndex]}ms` }}
-        />
-      </div>
-    </>
+    <div className="flex items-center border rounded-full justify-center w-1/2 aspect-square">
+      <motion.div
+        className="aspect-square rounded-full bg-green-500"
+        animate={controls}
+      />
+    </div>
   )
 }
 
