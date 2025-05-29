@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Layout from './Layout'
-import Home from './pages/Home'
-import Breath from './pages/Breath'
-import Train from './pages/Train'
+import Layout from '@/Layout'
+import Home from '@/pages/Home'
+import Breath from '@/pages/Breath'
+import Train from '@/pages/Train'
 
 function App() {
   return (

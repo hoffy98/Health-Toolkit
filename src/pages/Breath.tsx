@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import './Breath.css'
 
-import Modal from '../components/Modal'
-import RangeSlider from '../components/RangeSlider'
+import Modal from '@/components/Modal'
+import RangeSlider from '@/components/RangeSlider'
 
 interface BreathProps {}
 
