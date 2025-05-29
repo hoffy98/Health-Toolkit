@@ -1,0 +1,84 @@
+:root {
+  /* Shadow configuration */
+  --blur-start: 0px;
+  --blur-end: 0px;
+  --spread-start: 0px;
+  --spread-end: 0px;
+
+  /* Colors */
+  --color-breath-in: #4ade80; /* Tailwind green-400 */
+  --color-breath-out: #4ade80; /* Tailwind red-400 */
+  --color-hold: #c78625; /* Tailwind blue-400 */
+}
+
+@keyframes breathing-in-shadow {
+  from {
+    box-shadow: 0 0 var(--blur-start) var(--spread-start) var(--color-breath-in);
+  }
+  to {
+    box-shadow: 0 0 var(--blur-end) var(--spread-end) var(--color-breath-in);
+  }
+}
+
+@keyframes breathing-out-shadow {
+  from {
+    box-shadow: 0 0 var(--blur-end) var(--spread-end) var(--color-breath-out);
+  }
+  to {
+    box-shadow: 0 0 var(--blur-start) var(--spread-start)
+      var(--color-breath-out);
+  }
+}
+
+/* Hold states fix the shadow to match the current phase */
+.hold-in-shadow {
+  box-shadow: 0 0 var(--blur-end) var(--spread-end) var(--color-hold);
+}
+
+.hold-out-shadow {
+  box-shadow: 0 0 var(--blur-start) var(--spread-start) var(--color-hold);
+}
+
+@keyframes breathing-in {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes breathing-out {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Hold states fix the shadow to match the current phase */
+.hold-in {
+  width: 100%;
+}
+
+.hold-out {
+  width: 0%;
+}
+
+/* Apply animations */
+.breathing-in {
+  animation: breathing-in ease-out forwards;
+}
+
+.breathing-out {
+  animation: breathing-out ease-out forwards;
+}
+
+.breathing-in-shadow {
+  animation: breathing-in-shadow ease-out forwards;
+}
+
+.breathing-out-shadow {
+  animation: breathing-out-shadow ease-out forwards;
+}
