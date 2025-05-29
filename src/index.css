@@ -15,4 +15,11 @@
   h1 {
     @apply text-2xl;
   }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
