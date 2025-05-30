@@ -1,0 +1,31 @@
+{
+  "Typescript React Functional Component": {
+    "prefix": "rfc",
+    "body": [
+      "interface ${1:ComponentName}Props {}",
+      "",
+      "const ${1:ComponentName}: React.FC<${1:ComponentName}Props> = ({}) => {",
+      "  return <div></div>",
+      "}"
+    ],
+    "description": "React functional component with props interface"
+  },
+  "Typescript React Functional Component Export": {
+    "prefix": "rfce",
+    "body": [
+      "interface ${TM_FILENAME_BASE}Props {}",
+      "",
+      "const ${TM_FILENAME_BASE}: React.FC<${TM_FILENAME_BASE}Props> = ({}) => {",
+      "  return <div>${TM_FILENAME_BASE}</div>",
+      "}",
+      "",
+      "export default ${TM_FILENAME_BASE}"
+    ],
+    "description": "React functional component with props interface"
+  },
+  "Tailwindcss Red Border": {
+    "prefix": "rborder",
+    "body": ["border border-red-500"],
+    "description": "quick red border"
+  }
+}
