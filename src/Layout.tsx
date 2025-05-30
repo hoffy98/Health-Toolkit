@@ -30,8 +30,8 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className='py-5'>
-        <p>© {currentYear} Johannes Hofmann</p>
+      <footer className='py-8'>
+        {/* <p>© {currentYear} Johannes Hofmann</p> */}
       </footer>
     </div>
   )
