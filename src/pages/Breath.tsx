@@ -11,9 +11,9 @@ const Breath: React.FC<BreathProps> = ({}) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false)
   const [restartTrigger, setRestartTrigger] = useState<boolean>(false)
   const [durations, setDurations] = useState<[number, number, number, number]>([
-    4000, 1000, 4000, 1000,
+    4000, 7000, 8000, 0,
   ])
-  const [repeats, setRepeats] = useState<number>(0)
+  const [repeats, setRepeats] = useState<number>(20)
 
   const triggerAnimationRestart = () => {
     setRestartTrigger((old) => !old)
@@ -181,6 +181,13 @@ const BreathingCircle: React.FC<BreathingCircleProps> = ({
     controls.set({ width: '0%' }) // Reset to initial state
     controls.start({
       width: ['0%', '100%', '100%', '0%', '0%'],
+      boxShadow: [
+        '0px 0px 0px 0px rgba(0,0,0,0)',
+        '0px 0px 100px 10px rgba(255,255,255,0.2)',
+        '0px 0px 100px 10px rgba(255,255,255,0.2)',
+        '0px 0px 0px 0px rgba(0,0,0,0)',
+        '0px 0px 0px 0px rgba(0,0,0,0)',
+      ],
       transition: {
         repeat: Infinity,
         duration: totalDuration,
@@ -208,7 +215,7 @@ const BreathingCircle: React.FC<BreathingCircleProps> = ({
           animate={controls}
         />
       </div>
-      <p className="opacity-20">{repeatsLeft}</p>
+      <p className="h-4 opacity-20 bg-transparent">{repeatsLeft > 0 ? repeatsLeft : ''}</p>
     </div>
   )
 }
