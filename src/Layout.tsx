@@ -8,6 +8,8 @@ export default function Layout() {
     { to: "/", label: "Home" },
     { to: "/breath", label: "Breath" },
     { to: "/train", label: "Train" },
+    { to: "/timer", label: "Timer" },
+    { to: "/hiit", label: "HIIT" },
   ]
 
   return (

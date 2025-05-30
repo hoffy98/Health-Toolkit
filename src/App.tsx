@@ -3,6 +3,8 @@ import Layout from '@/Layout'
 import Home from '@/pages/Home'
 import Breath from '@/pages/Breath'
 import Train from '@/pages/Train'
+import Timer from '@/pages/Timer'
+import HIIT from '@/pages/HIIT'
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
             <Route index element={<Home />} />
             <Route path="breath" element={<Breath />} />
             <Route path="train" element={<Train />} />
+            <Route path="timer" element={<Timer />} />
+            <Route path="hiit" element={<HIIT />} />
           </Route>
         </Routes>
       </Router>
