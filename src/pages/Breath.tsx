@@ -13,10 +13,7 @@ const Breath: React.FC<BreathProps> = ({}) => {
   const [durations, setDurations] = useState<[number, number, number, number]>([
     4000, 1000, 4000, 1000,
   ])
-
-  const onAnimationStart = () => {
-    console.log('Animation Start')
-  }
+  const [repeats, setRepeats] = useState<number>(0)
 
   const triggerAnimationRestart = () => {
     setRestartTrigger((old) => !old)
@@ -29,15 +26,20 @@ const Breath: React.FC<BreathProps> = ({}) => {
         className="flex w-full h-full items-center justify-center"
       >
         <BreathingCircle
-          onAnimationStart={onAnimationStart}
           durationsMs={durations}
           restartTrigger={restartTrigger}
+          repeats={repeats}
         />
       </div>
       <button onClick={() => setIsSettingsOpen(true)}>Settings</button>
       {/* Settings Modal */}
       <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>
-        <BreathSettings durations={durations} setDurations={setDurations} />
+        <BreathSettings
+          durations={durations}
+          setDurations={setDurations}
+          repeats={repeats}
+          setRepeats={setRepeats}
+        />
       </Modal>
     </div>
   )
@@ -48,12 +50,22 @@ interface BreathSettingsProps {
   setDurations: React.Dispatch<
     React.SetStateAction<[number, number, number, number]>
   >
+  repeats: number
+  setRepeats: React.Dispatch<React.SetStateAction<number>>
 }
 
 const BreathSettings: React.FC<BreathSettingsProps> = ({
   durations,
   setDurations,
+  repeats,
+  setRepeats,
 }) => {
+  const totalDuration =
+    repeats * durations.map((d) => d / 1000).reduce((a, b) => a + b)
+
+  const totalDuration_min = Math.floor(totalDuration / 60)
+  const totalDuration_s = Math.round(totalDuration - totalDuration_min * 60)
+
   const setBreatheIn = (time_ms: number) => {
     setDurations((old) => [time_ms, old[1], old[2], old[3]])
   }
@@ -85,6 +97,10 @@ const BreathSettings: React.FC<BreathSettingsProps> = ({
   return (
     <div className="flex flex-col space-y-2">
       <h2>Settings</h2>
+      <div className="flex">
+        <p className="w-28 text-right mr-2 shrink-0">Times ({repeats})</p>
+        <RangeSlider min={0} max={50} value={repeats} setValue={setRepeats} />
+      </div>
       <BreathTimeSlider
         name="In"
         value={durations[0]}
@@ -103,6 +119,9 @@ const BreathSettings: React.FC<BreathSettingsProps> = ({
         <button onClick={set478}>4-7-8</button>
         <button onClick={setBox}>Box</button>
       </div>
+      <p className="opacity-20">
+        {totalDuration_min}min {totalDuration_s}s
+      </p>
     </div>
   )
 }
@@ -130,15 +149,16 @@ const BreathTimeSlider: React.FC<BreathTimeSliderProps> = ({
 
 interface BreathingCircleProps {
   durationsMs: [number, number, number, number] // [breatheIn, hold1, breatheOut, hold2]
-  onAnimationStart: () => void
   restartTrigger: boolean
+  repeats: number
 }
 
 const BreathingCircle: React.FC<BreathingCircleProps> = ({
   durationsMs,
-  onAnimationStart,
   restartTrigger,
+  repeats,
 }) => {
+  const [repeatsLeft, setRepeatsLeft] = useState<number>(0)
   const durations = durationsMs.map((d) => d / 1000)
   const totalDuration = durations.reduce((a, b) => a + b)
   const controls = useAnimation()
@@ -151,12 +171,10 @@ const BreathingCircle: React.FC<BreathingCircleProps> = ({
       intervalRef.current = null
     }
 
-    // Fire immediately
-    onAnimationStart?.()
+    setRepeatsLeft(repeats)
 
-    // Start interval for repeated callbacks
     intervalRef.current = setInterval(() => {
-      onAnimationStart?.()
+      setRepeatsLeft((val) => Math.max(0, val - 1))
     }, totalDuration * 1000)
 
     // Start the animation
@@ -180,14 +198,17 @@ const BreathingCircle: React.FC<BreathingCircleProps> = ({
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [durationsMs.join(','), restartTrigger]) // Trigger only when values change
+  }, [durationsMs.join(','), restartTrigger, repeats]) // Trigger only when values change
 
   return (
-    <div className="flex items-center border rounded-full justify-center w-1/2 aspect-square">
-      <motion.div
-        className="aspect-square rounded-full bg-green-500"
-        animate={controls}
-      />
+    <div className="flex flex-col space-y-5 items-center justify-center w-full h-full">
+      <div className="flex items-center border rounded-full justify-center aspect-square w-[min(70vw,60vh)]">
+        <motion.div
+          className="aspect-square rounded-full bg-green-500"
+          animate={controls}
+        />
+      </div>
+      <p className="opacity-20">{repeatsLeft}</p>
     </div>
   )
 }
