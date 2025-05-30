@@ -42,21 +42,23 @@ const Train: React.FC<TrainProps> = ({}) => {
 
   return (
     <div className="flex flex-col w-full h-full justify-center items-center">
-      <h1
-        onClick={triggerTimer}
-        onDoubleClick={clearTimer}
-        className={`my-6 text-6xl font-bold ${
-          countdown == 0 ? 'text-green-500' : ''
-        }`}
-      >
-        {formatTime(countdown)}
-      </h1>
-      <Exercises
-        triggerTimer={triggerTimer}
-        exercises={exercises}
-        sets={sets}
-      />
-      <button className="my-6" onClick={() => setIsSettingsOpen(true)}>
+      <div className='flex flex-col w-full h-full justify-center items-center'>
+        <h1
+          onClick={triggerTimer}
+          onDoubleClick={clearTimer}
+          className={`my-6 text-6xl font-bold ${
+            countdown == 0 ? 'text-green-500' : ''
+          }`}
+        >
+          {formatTime(countdown)}
+        </h1>
+        <Exercises
+          triggerTimer={triggerTimer}
+          exercises={exercises}
+          sets={sets}
+        />
+      </div>
+      <button className="my-5" onClick={() => setIsSettingsOpen(true)}>
         Settings
       </button>
       <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>
