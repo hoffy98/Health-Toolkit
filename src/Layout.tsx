@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom'
 
 export default function Layout() {
   const location = useLocation()
-  const currentYear = new Date().getFullYear()
+  // const currentYear = new Date().getFullYear()
 
   const navLinks = [
     { to: "/", label: "Home" },
