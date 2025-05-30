@@ -31,7 +31,7 @@ const Breath: React.FC<BreathProps> = ({}) => {
           repeats={repeats}
         />
       </div>
-      <button onClick={() => setIsSettingsOpen(true)}>Settings</button>
+      <button className='my-5' onClick={() => setIsSettingsOpen(true)}>Settings</button>
       {/* Settings Modal */}
       <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>
         <BreathSettings
