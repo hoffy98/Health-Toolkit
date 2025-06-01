@@ -1,26 +1,106 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 
+import { FaPauseCircle, FaPlayCircle } from 'react-icons/fa'
+
+type HIITSetting = {
+  warmup: number
+  cooldown: number
+  work: number
+  rest: number
+  rounds: number
+}
+
+const initialHIITSetting: HIITSetting = {
+  warmup: 2,
+  cooldown: 2,
+  work: 2,
+  rest: 1,
+  rounds: 3,
+}
+
 interface HIITProps {}
 
 const HIIT: React.FC<HIITProps> = ({}) => {
-  const [countdownDuration, setCountdownDuration] = useState<number>(1)
+  const [setting, setSetting] = useState<HIITSetting>(initialHIITSetting)
+  const [currentRound, setCurrentRound] = useState<number>(0)
+  const [currentRoundState, setCurrentRoundState] = useState<
+    'finished' | 'warmup' | 'work' | 'rest' | 'cooldown'
+  >('finished')
+
+  const [countdownDuration, setCountdownDuration] = useState<number>(0)
   const [isRunning, setIsRunning] = useState<boolean>(false)
 
+  const gotoNextInterval = () => {
+    switch (currentRoundState) {
+      case 'finished':
+        setCountdownDuration(setting.warmup)
+        setCurrentRoundState('warmup')
+        setIsRunning(true)
+        setCurrentRound(0)
+        break
+      case 'warmup':
+        setCountdownDuration(setting.work)
+        setCurrentRoundState('work')
+        setIsRunning(true)
+        setCurrentRound(1)
+        break
+      case 'work':
+        setCountdownDuration(setting.rest)
+        setCurrentRoundState('rest')
+        setIsRunning(true)
+        break
+      case 'rest':
+        if (currentRound >= setting.rounds) {
+          setCountdownDuration(setting.cooldown)
+          setCurrentRoundState('cooldown')
+          setIsRunning(true)
+        } else {
+          setCountdownDuration(setting.work)
+          setCurrentRoundState('work')
+          setCurrentRound(currentRound + 1)
+          setIsRunning(true)
+        }
+        break
+      case 'cooldown':
+        setCurrentRoundState('finished')
+        break
+    }
+  }
+
   const onCountdownFinish = () => {
-    console.log('Finished')
+    console.log('Countdown Finished')
+    if (currentRoundState == 'finished') return
+    gotoNextInterval()
+  }
+
+  const toggleIsRunning = () => {
+    if (currentRoundState == 'finished') {
+      setCountdownDuration(setting.warmup)
+      setCurrentRoundState('warmup')
+      setCurrentRound(0)
+    }
+    setIsRunning((v) => !v)
   }
 
   return (
-    <div
-      onClick={() => setIsRunning((v) => !v)}
-      className="flex flex-col w-full h-full justify-center items-center"
-    >
+    <div className="flex flex-col w-full h-full justify-center items-center space-y-5">
+      <div className="flex flex-col items-center">
+        <h1>{currentRoundState}</h1>
+        <h1>
+          {currentRound}/{setting.rounds}
+        </h1>
+      </div>
       <HIITCountdown
         countdownDuration={countdownDuration}
         isRunning={isRunning}
         setIsRunning={setIsRunning}
         isFinishedCallback={onCountdownFinish}
       />
+      <div className="flex">
+        <button className="text-6xl" onClick={toggleIsRunning}>
+          {isRunning ? <FaPauseCircle /> : <FaPlayCircle />}
+        </button>
+      </div>
     </div>
   )
 }
@@ -94,9 +174,8 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
   }, [isRunning])
 
   useEffect(() => {
-    if (isRunning == false && countdownDuration > 0 && timeLeftMs == 0)
-      isFinishedCallback()
-  }, [isRunning, countdownDuration, timeLeftMs])
+    if (isRunning == false && timeLeftMs == 0) isFinishedCallback()
+  }, [isRunning, timeLeftMs])
 
   return (
     <div className="relative w-[min(70vw,60vh)] aspect-square">
@@ -106,6 +185,18 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
         className="absolute inset-0 w-full h-full"
         preserveAspectRatio="xMidYMid meet"
       >
+        <circle
+          className="stroke-primary_light"
+          cx="50"
+          cy="50"
+          r={radius}
+          fill="none"
+          strokeWidth={strokeWidth}
+          strokeOpacity={0.2}
+          style={{
+            transformOrigin: '50% 50%',
+          }}
+        />
         <circle
           className="stroke-green-500"
           cx="50"
