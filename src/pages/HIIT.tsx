@@ -23,7 +23,7 @@ type RoundState = 'finished' | 'warmup' | 'work' | 'rest' | 'cooldown'
 interface HIITProps {}
 
 const HIIT: React.FC<HIITProps> = ({}) => {
-  const [setting, setSetting] = useState<HIITSetting>(initialHIITSetting)
+  const [setting, _] = useState<HIITSetting>(initialHIITSetting)
   const [currentRound, setCurrentRound] = useState<number>(0)
   const [currentRoundState, setCurrentRoundState] =
     useState<RoundState>('finished')
@@ -70,7 +70,6 @@ const HIIT: React.FC<HIITProps> = ({}) => {
   }
 
   const onCountdownFinish = () => {
-    console.log('Countdown Finished')
     if (currentRoundState == 'finished') return
     gotoNextInterval()
   }
@@ -239,10 +238,10 @@ const HIITBackgroundColoring: React.FC<HIITBackgroundColoringProps> = ({
 }) => {
   const roundStateToColor: Record<RoundState, string> = {
     finished: 'bg-primary_dark',
-    warmup: 'bg-orange-400',
+    warmup: 'bg-blue-500',
     work: 'bg-green-500',
-    rest: 'bg-blue-500',
-    cooldown: 'bg-orange-500',
+    rest: 'bg-orange-500',
+    cooldown: 'bg-blue-500',
   }
 
   useEffect(() => {
@@ -266,7 +265,11 @@ const HIITBackgroundColoring: React.FC<HIITBackgroundColoringProps> = ({
     }
   }, [currentRoundState])
 
-  return null // This component only applies side effects
+  return <div className='hidden w-0 h-0'>
+    <div className='bg-blue-500'></div>
+    <div className='bg-green-500'></div>
+    <div className='bg-orange-500'></div>
+  </div>
 }
 
 const formatTime = (seconds: number) => {
