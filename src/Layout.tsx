@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 
+import { IoMenu } from "react-icons/io5";
 import Modal from '@/components/Modal'
 
 export default function Layout() {
@@ -23,9 +24,9 @@ export default function Layout() {
     <div className="flex flex-col w-full h-full items-center">
       <header
         onClick={() => setIsMenuOpen(true)}
-        className="w-full text-center py-5 hover:cursor-pointer"
+        className="flex justify-center text-4xl w-full py-5 hover:cursor-pointer"
       >
-        <h1>HTK</h1>
+        <IoMenu />
       </header>
 
       <Modal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
