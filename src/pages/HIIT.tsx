@@ -84,37 +84,15 @@ const HIIT: React.FC<HIITProps> = ({}) => {
     setIsRunning((v) => !v)
   }
 
-  useEffect(() => {
-    const rootDiv = document.getElementById('root')
-
-    switch (currentRoundState) {
-      case 'finished':
-        rootDiv?.classList.add('bg-blue-500')
-        break
-      case 'warmup':
-        rootDiv?.classList.add('bg-blue-500')
-        break
-      case 'work':
-        rootDiv?.classList.add('bg-blue-500')
-        break
-      case 'rest':
-        rootDiv?.classList.add('bg-blue-500')
-        break
-      case 'cooldown':
-        rootDiv?.classList.add('bg-blue-500')
-        break
-    }
-  }, [currentRoundState])
-
   return (
     <div className="flex flex-col w-full h-full justify-center items-center space-y-5">
-      <div className="flex flex-col items-center">
-        <h1>{currentRoundState}</h1>
-        <h1>
-          {currentRound}/{setting.rounds}
-        </h1>
-      </div>
       <HIITCountdown
+        topString={currentRoundState == 'finished' ? '' : currentRoundState.toUpperCase()}
+        bottomString={
+          currentRoundState == 'work' || currentRoundState == 'rest'
+            ? `${currentRound}/${setting.rounds}`
+            : ''
+        }
         countdownDuration={countdownDuration}
         isRunning={isRunning}
         setIsRunning={setIsRunning}
@@ -131,6 +109,8 @@ const HIIT: React.FC<HIITProps> = ({}) => {
 }
 
 interface HIITCountdownProps {
+  topString?: string
+  bottomString?: string
   countdownDuration: number
   isRunning: boolean
   setIsRunning: React.Dispatch<React.SetStateAction<boolean>>
@@ -138,6 +118,8 @@ interface HIITCountdownProps {
 }
 
 const HIITCountdown: React.FC<HIITCountdownProps> = ({
+  topString,
+  bottomString,
   countdownDuration,
   isRunning,
   setIsRunning,
@@ -203,7 +185,7 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
   }, [isRunning, timeLeftMs])
 
   return (
-    <div className="relative w-[min(70vw,60vh)] aspect-square">
+    <div className="relative w-[min(80vw,60vh)] aspect-square">
       {/* SVG Layer (on top) */}
       <svg
         viewBox="0 0 100 100"
@@ -239,8 +221,10 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
       </svg>
 
       {/* Text in the center */}
-      <div className="absolute inset-0 flex items-center justify-center text-6xl font-bold bg-transparent">
-        {formatTime(timeLeftSec)}
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-transparent">
+        <h1 className="h-8">{topString}</h1>
+        <h1 className="text-6xl my-5 font-bold">{formatTime(timeLeftSec)}</h1>
+        <h1 className="h-8">{bottomString}</h1>
       </div>
     </div>
   )
@@ -273,6 +257,13 @@ const HIITBackgroundColoring: React.FC<HIITBackgroundColoringProps> = ({
     // Add the new background class based on currentRoundState
     const newColor = roundStateToColor[currentRoundState]
     rootDiv.classList.add(newColor)
+
+    return () => {
+      // Remove any previously applied background class
+      Object.values(roundStateToColor).forEach((colorClass) => {
+        rootDiv.classList.remove(colorClass)
+      })
+    }
   }, [currentRoundState])
 
   return null // This component only applies side effects
