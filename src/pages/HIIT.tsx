@@ -1,23 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { motion, useAnimation } from 'framer-motion'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 
 interface HIITProps {}
 
 const HIIT: React.FC<HIITProps> = ({}) => {
-  const [countdownDuration, setCountdownDuration] = useState<number>(10)
-  const [countdonwTrigger, setCountdownTrigger] = useState<boolean>(false)
-
-  const onCountdownFinished = () => {}
+  const [countdownDuration, setCountdownDuration] = useState<number>(1)
+  const [isRunning, setIsRunning] = useState<boolean>(false)
 
   return (
     <div
-      onClick={() => setCountdownTrigger((v) => !v)}
+      onClick={() => setIsRunning((v) => !v)}
       className="flex flex-col w-full h-full justify-center items-center"
     >
       <HIITCountdown
         countdownDuration={countdownDuration}
-        countdonwTrigger={countdonwTrigger}
-        countdownCallback={onCountdownFinished}
+        isRunning={isRunning}
+        setIsRunning={setIsRunning}
       />
     </div>
   )
@@ -25,83 +22,79 @@ const HIIT: React.FC<HIITProps> = ({}) => {
 
 interface HIITCountdownProps {
   countdownDuration: number
-  countdonwTrigger: boolean
-  countdownCallback: () => void
+  isRunning: boolean
+  setIsRunning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const HIITCountdown: React.FC<HIITCountdownProps> = ({
   countdownDuration,
-  countdonwTrigger,
-  countdownCallback,
+  isRunning,
+  setIsRunning,
 }) => {
-  const [countdown, setCountdown] = useState<number>(0)
-  const [isCounting, setIsCounting] = useState<boolean>(false)
+  const [timeLeftMs, setTimeLeftMs] = useState(countdownDuration * 1000)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const progress = useMemo(() => {
+    if (countdownDuration == 0) return 1
+    const totalMs = countdownDuration * 1000
+    return Math.max(0, Math.min(1, 1 - timeLeftMs / totalMs))
+  }, [timeLeftMs, countdownDuration])
+
+  const timeLeftSec = useMemo(() => {
+    return Math.round(Math.max(0, timeLeftMs / 1000))
+  }, [timeLeftMs])
 
   const strokeWidth = 5
   const radius = 50 - strokeWidth / 2
   const circumference = 2 * Math.PI * radius
 
-  const controls = useAnimation()
-
   useEffect(() => {
-    triggerCountdown()
-  }, [countdonwTrigger])
-
-  const triggerCountdown = () => {
-    startAnimation(countdownDuration, countdownCallback)
-    triggerTimer(countdownDuration)
-  }
-
-  // Timer
-  useEffect(() => {
-    setCountdown(countdownDuration)
+    setTimeLeftMs(countdownDuration * 1000) // reset if countdownDuration changes
   }, [countdownDuration])
 
   useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (isCounting && countdown > 0) {
-      timer = setTimeout(() => {
-        setCountdown((prev) => prev - 1)
-      }, 1000)
-    } else if (countdown === 0 && isCounting) {
-      setIsCounting(false) // Stop counting
+    if (intervalRef.current) clearInterval(intervalRef.current)
+
+    if (isRunning) {
+      let initialTimeLeft = timeLeftMs
+
+      // If starting while at 0, reset to full duration
+      if (timeLeftMs <= 0) {
+        initialTimeLeft = countdownDuration * 1000
+        setTimeLeftMs(initialTimeLeft)
+      }
+
+      const startTime = Date.now()
+      const endTime = startTime + initialTimeLeft
+
+      intervalRef.current = setInterval(() => {
+        const now = Date.now()
+        const newTimeLeft = endTime - now
+
+        if (newTimeLeft <= 0) {
+          setTimeLeftMs(0)
+          setIsRunning(false)
+          clearInterval(intervalRef.current!)
+        } else {
+          setTimeLeftMs(newTimeLeft)
+        }
+      }, 10)
     }
-    return () => clearTimeout(timer)
-  }, [countdown, isCounting])
 
-  const triggerTimer = (time_s: number) => {
-    setCountdown(time_s)
-    setIsCounting(true)
-  }
-
-  // Circle
-  const startAnimation = (duration: number, onComplete?: () => void) => {
-    resetAnimation()
-    controls
-      .start({
-        strokeDashoffset: 0,
-        transition: { duration, ease: 'linear' },
-      })
-      .then(() => {
-        if (onComplete) onComplete()
-      })
-  }
-
-  const resetAnimation = () => {
-    controls.set({
-      strokeDashoffset: circumference,
-    })
-  }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [isRunning])
 
   return (
     <div className="relative w-[min(70vw,60vh)] aspect-square">
       {/* SVG Layer (on top) */}
-      <motion.svg
+      <svg
         viewBox="0 0 100 100"
         className="absolute inset-0 w-full h-full"
         preserveAspectRatio="xMidYMid meet"
       >
-        <motion.circle
+        <circle
           className="stroke-green-500"
           cx="50"
           cy="50"
@@ -109,19 +102,17 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
           fill="none"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
-          strokeDashoffset={circumference}
-          animate={controls}
-          initial={{ strokeDashoffset: circumference }}
+          strokeDashoffset={(1 - progress) * circumference}
           style={{
             transformOrigin: '50% 50%',
-            rotate: -90,
+            transform: 'rotate(-90deg)',
           }}
         />
-      </motion.svg>
+      </svg>
 
       {/* Text in the center */}
       <div className="absolute inset-0 flex items-center justify-center text-6xl font-bold bg-transparent">
-        {formatTime(countdown)}
+        {formatTime(timeLeftSec)}
       </div>
     </div>
   )
