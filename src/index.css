@@ -9,7 +9,6 @@
 @layer base {
   * {
     @apply font-mono;
-    @apply bg-primary_dark;
     @apply text-primary_light;
   }
   h1 {

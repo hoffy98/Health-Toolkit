@@ -18,14 +18,15 @@ const initialHIITSetting: HIITSetting = {
   rounds: 3,
 }
 
+type RoundState = 'finished' | 'warmup' | 'work' | 'rest' | 'cooldown'
+
 interface HIITProps {}
 
 const HIIT: React.FC<HIITProps> = ({}) => {
   const [setting, setSetting] = useState<HIITSetting>(initialHIITSetting)
   const [currentRound, setCurrentRound] = useState<number>(0)
-  const [currentRoundState, setCurrentRoundState] = useState<
-    'finished' | 'warmup' | 'work' | 'rest' | 'cooldown'
-  >('finished')
+  const [currentRoundState, setCurrentRoundState] =
+    useState<RoundState>('finished')
 
   const [countdownDuration, setCountdownDuration] = useState<number>(0)
   const [isRunning, setIsRunning] = useState<boolean>(false)
@@ -63,6 +64,7 @@ const HIIT: React.FC<HIITProps> = ({}) => {
         break
       case 'cooldown':
         setCurrentRoundState('finished')
+        setCountdownDuration(0)
         break
     }
   }
@@ -81,6 +83,28 @@ const HIIT: React.FC<HIITProps> = ({}) => {
     }
     setIsRunning((v) => !v)
   }
+
+  useEffect(() => {
+    const rootDiv = document.getElementById('root')
+
+    switch (currentRoundState) {
+      case 'finished':
+        rootDiv?.classList.add('bg-blue-500')
+        break
+      case 'warmup':
+        rootDiv?.classList.add('bg-blue-500')
+        break
+      case 'work':
+        rootDiv?.classList.add('bg-blue-500')
+        break
+      case 'rest':
+        rootDiv?.classList.add('bg-blue-500')
+        break
+      case 'cooldown':
+        rootDiv?.classList.add('bg-blue-500')
+        break
+    }
+  }, [currentRoundState])
 
   return (
     <div className="flex flex-col w-full h-full justify-center items-center space-y-5">
@@ -101,6 +125,7 @@ const HIIT: React.FC<HIITProps> = ({}) => {
           {isRunning ? <FaPauseCircle /> : <FaPlayCircle />}
         </button>
       </div>
+      <HIITBackgroundColoring currentRoundState={currentRoundState} />
     </div>
   )
 }
@@ -122,7 +147,7 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const progress = useMemo(() => {
-    if (countdownDuration == 0) return 1
+    if (countdownDuration == 0) return 0
     const totalMs = countdownDuration * 1000
     return Math.max(0, Math.min(1, 1 - timeLeftMs / totalMs))
   }, [timeLeftMs, countdownDuration])
@@ -198,7 +223,7 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
           }}
         />
         <circle
-          className="stroke-green-500"
+          className="stroke-primary_dark"
           cx="50"
           cy="50"
           r={radius}
@@ -219,6 +244,38 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
       </div>
     </div>
   )
+}
+
+interface HIITBackgroundColoringProps {
+  currentRoundState: RoundState
+}
+
+const HIITBackgroundColoring: React.FC<HIITBackgroundColoringProps> = ({
+  currentRoundState,
+}) => {
+  const roundStateToColor: Record<RoundState, string> = {
+    finished: 'bg-primary_dark',
+    warmup: 'bg-orange-400',
+    work: 'bg-green-500',
+    rest: 'bg-blue-500',
+    cooldown: 'bg-orange-500',
+  }
+
+  useEffect(() => {
+    const rootDiv = document.getElementById('root')
+    if (!rootDiv) return
+
+    // Remove any previously applied background class
+    Object.values(roundStateToColor).forEach((colorClass) => {
+      rootDiv.classList.remove(colorClass)
+    })
+
+    // Add the new background class based on currentRoundState
+    const newColor = roundStateToColor[currentRoundState]
+    rootDiv.classList.add(newColor)
+  }, [currentRoundState])
+
+  return null // This component only applies side effects
 }
 
 const formatTime = (seconds: number) => {

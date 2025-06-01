@@ -15,7 +15,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       onClick={onClose}
     >
       <div
-        className="rounded-2xl border shadow-xl p-6 m-6 w-full max-w-md"
+        className="rounded-2xl border shadow-xl p-6 m-6 w-full max-w-md bg-primary_dark"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-end">
