@@ -6,6 +6,10 @@ const HIIT: React.FC<HIITProps> = ({}) => {
   const [countdownDuration, setCountdownDuration] = useState<number>(1)
   const [isRunning, setIsRunning] = useState<boolean>(false)
 
+  const onCountdownFinish = () => {
+    console.log('Finished')
+  }
+
   return (
     <div
       onClick={() => setIsRunning((v) => !v)}
@@ -15,6 +19,7 @@ const HIIT: React.FC<HIITProps> = ({}) => {
         countdownDuration={countdownDuration}
         isRunning={isRunning}
         setIsRunning={setIsRunning}
+        isFinishedCallback={onCountdownFinish}
       />
     </div>
   )
@@ -24,12 +29,14 @@ interface HIITCountdownProps {
   countdownDuration: number
   isRunning: boolean
   setIsRunning: React.Dispatch<React.SetStateAction<boolean>>
+  isFinishedCallback: () => void
 }
 
 const HIITCountdown: React.FC<HIITCountdownProps> = ({
   countdownDuration,
   isRunning,
   setIsRunning,
+  isFinishedCallback,
 }) => {
   const [timeLeftMs, setTimeLeftMs] = useState(countdownDuration * 1000)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -41,7 +48,7 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
   }, [timeLeftMs, countdownDuration])
 
   const timeLeftSec = useMemo(() => {
-    return Math.round(Math.max(0, timeLeftMs / 1000))
+    return Math.ceil(Math.max(0, timeLeftMs / 1000))
   }, [timeLeftMs])
 
   const strokeWidth = 5
@@ -85,6 +92,11 @@ const HIITCountdown: React.FC<HIITCountdownProps> = ({
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
   }, [isRunning])
+
+  useEffect(() => {
+    if (isRunning == false && countdownDuration > 0 && timeLeftMs == 0)
+      isFinishedCallback()
+  }, [isRunning, countdownDuration, timeLeftMs])
 
   return (
     <div className="relative w-[min(70vw,60vh)] aspect-square">
