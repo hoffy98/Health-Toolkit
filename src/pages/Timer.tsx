@@ -29,27 +29,32 @@ const Timer: React.FC<TimerProps> = ({}) => {
   }, [countdown, isCounting])
 
   return (
-    <div className="flex flex-col w-full h-full justify-center items-center space-y-10">
-      <h1 className="text-8xl font-bold">{formatTime(countdown)}</h1>
-      <div className="flex flex-col items-center space-y-5">
-        <div className="flex space-x-5">
-          <PresetTimer time={30} trigger={triggerTimer} />
-          <PresetTimer time={60} trigger={triggerTimer} />
-        </div>
-        <div className="flex space-x-5">
-          <PresetTimer time={90} trigger={triggerTimer} />
-          <PresetTimer time={120} trigger={triggerTimer} />
-        </div>
-        <div className="flex space-x-5">
-          <PresetTimer time={150} trigger={triggerTimer} />
-          <div
-            onClick={clearTimer}
-            className="flex items-center justify-center text-xl border border-red-500 rounded-4xl bg-red-500 hover:cursor-pointer w-32 aspect-square"
-          >
-            Reset
+    <div className="flex flex-col w-full h-full justify-center items-center">
+      <div className="flex flex-col w-full h-full justify-center items-center space-y-10">
+        <h1 className="text-8xl font-bold">{formatTime(countdown)}</h1>
+        <div className="flex flex-col items-center space-y-5">
+          <div className="flex space-x-5">
+            <PresetTimer time={30} trigger={triggerTimer} />
+            <PresetTimer time={60} trigger={triggerTimer} />
+          </div>
+          <div className="flex space-x-5">
+            <PresetTimer time={90} trigger={triggerTimer} />
+            <PresetTimer time={120} trigger={triggerTimer} />
+          </div>
+          <div className="flex space-x-5">
+            <PresetTimer time={150} trigger={triggerTimer} />
+            <div
+              onClick={clearTimer}
+              className="flex items-center justify-center text-xl border border-red-500 rounded-4xl bg-red-500 hover:cursor-pointer w-32 aspect-square"
+            >
+              Reset
+            </div>
           </div>
         </div>
       </div>
+      <button className="my-5 invisible">
+        Settings
+      </button>
     </div>
   )
 }

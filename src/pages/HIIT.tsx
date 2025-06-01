@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 
 import { FaPauseCircle, FaPlayCircle } from 'react-icons/fa'
+import Modal from '@/components/Modal'
+import NumberInput from '@/components/NumberInput'
 
 type HIITSetting = {
   warmup: number
@@ -11,11 +13,11 @@ type HIITSetting = {
 }
 
 const initialHIITSetting: HIITSetting = {
-  warmup: 2,
-  cooldown: 2,
-  work: 2,
-  rest: 1,
-  rounds: 3,
+  warmup: 60,
+  cooldown: 60,
+  work: 30,
+  rest: 90,
+  rounds: 8,
 }
 
 type RoundState = 'finished' | 'warmup' | 'work' | 'rest' | 'cooldown'
@@ -23,13 +25,22 @@ type RoundState = 'finished' | 'warmup' | 'work' | 'rest' | 'cooldown'
 interface HIITProps {}
 
 const HIIT: React.FC<HIITProps> = ({}) => {
-  const [setting, _] = useState<HIITSetting>(initialHIITSetting)
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false)
+  const [setting, setSetting] = useState<HIITSetting>(initialHIITSetting)
+
   const [currentRound, setCurrentRound] = useState<number>(0)
   const [currentRoundState, setCurrentRoundState] =
     useState<RoundState>('finished')
 
   const [countdownDuration, setCountdownDuration] = useState<number>(0)
   const [isRunning, setIsRunning] = useState<boolean>(false)
+
+  useEffect(() => {
+    setCurrentRound(0)
+    setCurrentRoundState('finished')
+    setCountdownDuration(0)
+    setIsRunning(false)
+  }, [setting])
 
   const gotoNextInterval = () => {
     switch (currentRoundState) {
@@ -84,25 +95,135 @@ const HIIT: React.FC<HIITProps> = ({}) => {
   }
 
   return (
-    <div className="flex flex-col w-full h-full justify-center items-center space-y-5">
-      <HIITCountdown
-        topString={currentRoundState == 'finished' ? '' : currentRoundState.toUpperCase()}
-        bottomString={
-          currentRoundState == 'work' || currentRoundState == 'rest'
-            ? `${currentRound}/${setting.rounds}`
-            : ''
-        }
-        countdownDuration={countdownDuration}
-        isRunning={isRunning}
-        setIsRunning={setIsRunning}
-        isFinishedCallback={onCountdownFinish}
-      />
-      <div className="flex">
-        <button className="text-6xl" onClick={toggleIsRunning}>
-          {isRunning ? <FaPauseCircle /> : <FaPlayCircle />}
-        </button>
+    <div className="flex flex-col w-full h-full justify-center items-center">
+      <div className="flex flex-col w-full h-full justify-center items-center space-y-5">
+        <HIITCountdown
+          topString={
+            currentRoundState == 'finished'
+              ? ''
+              : currentRoundState.toUpperCase()
+          }
+          bottomString={
+            currentRoundState == 'work' || currentRoundState == 'rest'
+              ? `${currentRound}/${setting.rounds}`
+              : ''
+          }
+          countdownDuration={countdownDuration}
+          isRunning={isRunning}
+          setIsRunning={setIsRunning}
+          isFinishedCallback={onCountdownFinish}
+        />
+        <div className="flex">
+          <button className="text-6xl" onClick={toggleIsRunning}>
+            {isRunning ? <FaPauseCircle /> : <FaPlayCircle />}
+          </button>
+        </div>
+        <HIITBackgroundColoring currentRoundState={currentRoundState} />
       </div>
-      <HIITBackgroundColoring currentRoundState={currentRoundState} />
+      <button className="my-5" onClick={() => setIsSettingsOpen(true)}>
+        Settings
+      </button>
+      {/* Settings Modal */}
+      <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>
+        <HIITSettings setting={setting} setSetting={setSetting} />
+      </Modal>
+    </div>
+  )
+}
+
+interface HIITSettingsProps {
+  setting: HIITSetting
+  setSetting: React.Dispatch<React.SetStateAction<HIITSetting>>
+}
+
+const HIITSettings: React.FC<HIITSettingsProps> = ({ setting, setSetting }) => {
+  const setSettingWarmup = (val: number) => {
+    setSetting((prev) => ({
+      ...prev,
+      warmup: val,
+    }))
+  }
+  const setSettingCooldown = (val: number) => {
+    setSetting((prev) => ({
+      ...prev,
+      cooldown: val,
+    }))
+  }
+  const setSettingWork = (val: number) => {
+    setSetting((prev) => ({
+      ...prev,
+      work: val,
+    }))
+  }
+  const setSettingRest = (val: number) => {
+    setSetting((prev) => ({
+      ...prev,
+      rest: val,
+    }))
+  }
+  const setSettingRounds = (val: number) => {
+    setSetting((prev) => ({
+      ...prev,
+      rounds: val,
+    }))
+  }
+
+  return (
+    <div className="flex flex-col space-y-2">
+      <HIITSettingsItem
+        name="Warmup"
+        unit="s"
+        value={setting.warmup}
+        setValue={setSettingWarmup}
+      />
+      <HIITSettingsItem
+        name="Work"
+        unit="s"
+        value={setting.work}
+        setValue={setSettingWork}
+      />
+      <HIITSettingsItem
+        name="Rest"
+        unit="s"
+        value={setting.rest}
+        setValue={setSettingRest}
+      />
+      <HIITSettingsItem
+        name="Cooldown"
+        unit="s"
+        value={setting.cooldown}
+        setValue={setSettingCooldown}
+      />
+      <HIITSettingsItem
+        name="Rounds"
+        unit=""
+        value={setting.rounds}
+        setValue={setSettingRounds}
+      />
+    </div>
+  )
+}
+
+interface HIITSettingsItemProps {
+  name: string
+  unit: string
+  value: number
+  setValue: (newValue: number) => void
+}
+
+const HIITSettingsItem: React.FC<HIITSettingsItemProps> = ({
+  name,
+  unit,
+  value,
+  setValue,
+}) => {
+  return (
+    <div className="flex justify-center items-center space-x-2">
+      <p className="w-22 text-right">{name}:</p>
+      <div className="w-12 border p-1 rounded-lg">
+        <NumberInput min={0} max={Infinity} value={value} setValue={setValue} />
+      </div>
+      <p className="w-5 text-left">{unit}</p>
     </div>
   )
 }
@@ -265,11 +386,13 @@ const HIITBackgroundColoring: React.FC<HIITBackgroundColoringProps> = ({
     }
   }, [currentRoundState])
 
-  return <div className='hidden w-0 h-0'>
-    <div className='bg-blue-500'></div>
-    <div className='bg-green-500'></div>
-    <div className='bg-orange-500'></div>
-  </div>
+  return (
+    <div className="hidden w-0 h-0">
+      <div className="bg-blue-500"></div>
+      <div className="bg-green-500"></div>
+      <div className="bg-orange-500"></div>
+    </div>
+  )
 }
 
 const formatTime = (seconds: number) => {
