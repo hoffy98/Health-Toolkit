@@ -129,6 +129,10 @@ const TrainSettings: React.FC<TrainSettingsProps> = ({
 }) => {
   const [newExercise, setNewExercise] = useState<string>('')
 
+  const duration = useMemo(() => {
+    return restTime * sets * exercises.length
+  }, [restTime, sets, exercises.length])
+
   const handleExerciseNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -176,6 +180,10 @@ const TrainSettings: React.FC<TrainSettingsProps> = ({
           value={restTime}
           setValue={setRestTime}
         />
+      </div>
+      <div className="flex opacity-50">
+        <div className="w-30 text-right mr-2 shrink-0">Min Duration</div>
+        {formatTime(duration)}
       </div>
       <div className="flex items-center">
         <p className="w-30 text-right mr-2 shrink-0">Excercise</p>
