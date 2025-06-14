@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 
 import Modal from '@/components/Modal'
 import RangeSlider from '@/components/RangeSlider'
@@ -12,6 +12,11 @@ const Train: React.FC<TrainProps> = ({}) => {
   const [restTime, setRestTime] = useState<number>(2 * 60)
   const [countdown, setCountdown] = useState<number>(2 * 60)
   const [isCounting, setIsCounting] = useState<boolean>(false)
+
+  const isReady = useMemo(
+    () => !isCounting && countdown === 0,
+    [isCounting, countdown]
+  )
 
   const triggerTimer = () => {
     setCountdown(restTime)
@@ -42,13 +47,11 @@ const Train: React.FC<TrainProps> = ({}) => {
 
   return (
     <div className="flex flex-col w-full h-full justify-center items-center">
-      <div className='flex flex-col w-full h-full justify-center items-center'>
+      <div className="flex flex-col w-full h-full justify-center items-center">
         <h1
           onClick={triggerTimer}
           onDoubleClick={clearTimer}
-          className={`my-6 text-6xl font-bold ${
-            countdown == 0 ? 'text-green-500' : ''
-          }`}
+          className="my-6 text-6xl font-bold"
         >
           {formatTime(countdown)}
         </h1>
@@ -56,7 +59,9 @@ const Train: React.FC<TrainProps> = ({}) => {
           triggerTimer={triggerTimer}
           exercises={exercises}
           sets={sets}
+          isReady={isReady}
         />
+        <TrainBackgroundColoring isReady={isReady} />
       </div>
       <button className="my-5" onClick={() => setIsSettingsOpen(true)}>
         Settings
@@ -71,6 +76,36 @@ const Train: React.FC<TrainProps> = ({}) => {
           setRestTime={setRestTime}
         />
       </Modal>
+    </div>
+  )
+}
+
+interface TrainBackgroundColoringProps {
+  isReady: boolean
+}
+
+const TrainBackgroundColoring: React.FC<TrainBackgroundColoringProps> = ({
+  isReady,
+}) => {
+  const greenBgClass = 'bg-green-500'
+
+  useEffect(() => {
+    const rootDiv = document.getElementById('root')
+    if (!rootDiv) return
+
+    const setBgGreen = isReady
+
+    if (setBgGreen) rootDiv.classList.add(greenBgClass)
+    else rootDiv.classList.remove(greenBgClass)
+
+    return () => {
+      rootDiv.classList.remove(greenBgClass)
+    }
+  }, [isReady])
+
+  return (
+    <div className="hidden w-0 h-0">
+      <div className="bg-green-500"></div>
     </div>
   )
 }
@@ -174,12 +209,14 @@ interface ExercisesProps {
   exercises: string[]
   sets: number
   triggerTimer: () => void
+  isReady: boolean
 }
 
 const Exercises: React.FC<ExercisesProps> = ({
   exercises,
   sets,
   triggerTimer,
+  isReady,
 }) => {
   return (
     <div className="flex flex-col w-[90vw] max-w-md">
@@ -192,7 +229,12 @@ const Exercises: React.FC<ExercisesProps> = ({
             {exercise}
           </p>
           {Array.from({ length: sets }).map((_, index) => (
-            <ExerciseSet key={index} triggerTimer={triggerTimer} sets={sets} />
+            <ExerciseSet
+              key={index}
+              triggerTimer={triggerTimer}
+              sets={sets}
+              isReady={isReady}
+            />
           ))}
         </div>
       ))}
@@ -203,9 +245,14 @@ const Exercises: React.FC<ExercisesProps> = ({
 interface ExerciseSetProps {
   sets: number
   triggerTimer: () => void
+  isReady: boolean
 }
 
-const ExerciseSet: React.FC<ExerciseSetProps> = ({ sets, triggerTimer }) => {
+const ExerciseSet: React.FC<ExerciseSetProps> = ({
+  sets,
+  triggerTimer,
+  isReady,
+}) => {
   const [done, setDone] = useState<boolean>(false)
 
   const handleClick = () => {
@@ -216,8 +263,14 @@ const ExerciseSet: React.FC<ExerciseSetProps> = ({ sets, triggerTimer }) => {
   return (
     <div
       onClick={handleClick}
-      className={`border-4 border-primary_dark rounded-xl aspect-square ${
-        done ? 'bg-green-500' : 'bg-primary_light opacity-30'
+      className={`border-4 rounded-xl aspect-square hover:cursor-pointer ${
+        isReady
+          ? done
+            ? 'border-green-500 bg-primary_light opacity-30'
+            : 'bg-primary_dark border-green-500'
+          : done
+          ? 'bg-green-500 border-primary_dark'
+          : 'bg-primary_light opacity-30 border-primary_dark'
       }`}
       style={{ width: `${100 / (sets + 2)}%` }}
     ></div>
