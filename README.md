@@ -1,54 +1,84 @@
-# React + TypeScript + Vite
+# Health-Toolkit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[Health-Toolkit](https://www.toolkit.health/) is a collection of tools related to physical and mental health.
 
-Currently, two official plugins are available:
+<div align="center">
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| 🫁 Breath | 🔥 HIIT | ⏰ Timer | 💪 Train |
+|:---:|:---:|:---:|:---:|
+| <img src="./img/Breath.png" width="200" height="400" alt="Breath Tool" style="object-fit: contain;"> | <img src="./img/HIIT.png" width="200" height="400" alt="HIIT Tool" style="object-fit: contain;"> | <img src="./img/Timer.png" width="200" height="400" alt="Timer Tool" style="object-fit: contain;"> | <img src="./img/Train.png" width="200" height="400" alt="Training Tool" style="object-fit: contain;"> |
 
-## Expanding the ESLint configuration
+</div>
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Getting Started
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Prerequisites
+- Node.js (version 18 or higher)
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/hoffy98/Health-Toolkit.git
+cd Health-Toolkit
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. Install dependencies:
+```bash
+npm install
 ```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+4. Open your browser and navigate to `http://localhost:5173` (or the port shown in your terminal)
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+This will create a `dist` folder with the production-ready files.
+
+## 🛠️ Tech Stack
+
+- **Frontend Framework**: React 19
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS 4.1
+- **Animations**: Framer Motion
+- **Routing**: React Router DOM
+- **Icons**: React Icons
+- **Language**: TypeScript
+- **Linting**: ESLint
+
+## 📁 Project Structure
+
+```
+Health-Toolkit/
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── Modal.tsx
+│   │   ├── NumberInput.tsx
+│   │   └── RangeSlider.tsx
+│   ├── pages/              # Main application pages
+│   │   ├── Breath.tsx      # Breathing exercises
+│   │   ├── HIIT.tsx        # HIIT workouts
+│   │   ├── Home.tsx        # Landing page
+│   │   ├── Timer.tsx       # Timer functionality
+│   │   └── Train.tsx       # Training routines
+│   ├── App.tsx             # Main app component
+│   ├── Layout.tsx          # App layout wrapper
+│   └── main.tsx            # Application entry point
+├── img/                    # Application screenshots
+├── public/                 # Static assets
+└── ...config files
+```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+ 
